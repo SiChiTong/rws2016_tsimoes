@@ -158,7 +158,7 @@ namespace rws2016_tsimoes
                 displacement = (displacement > max_d ? max_d : displacement);
 
                 double min_d =  -0.1; 
-                displacement = (displacement > min_d ? min_d : displacement);
+                displacement = (displacement < min_d ? min_d : displacement);
 
                 double max_t =  (M_PI/60);
                 if (turn_angle > max_t)
@@ -248,7 +248,7 @@ int main(int argc, char** argv)
     ros::NodeHandle node;
 
     //Creating an instance of class MyPlayer
-    rws2016_tsimoes::MyPlayer my_player("moliveira", "red");
+    rws2016_tsimoes::MyPlayer my_player("tsimoes", "red");
 
     //Infinite loop
     ros::Rate loop_rate(10);
