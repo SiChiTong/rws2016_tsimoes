@@ -78,14 +78,14 @@ namespace rws2016_tsimoes
                 string first_refframe = name;
                 string second_refframe = p.name;
 
-                ros::Duration(0.001).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.01).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform(first_refframe, second_refframe, ros::Time(0), st);
                 }
                 catch (tf::TransformException& ex){
                     ROS_ERROR("%s",ex.what());
-                    ros::Duration(0.25).sleep();
+                    ros::Duration(0.1).sleep();
                 }
 
                 tf::Transform t;
@@ -106,14 +106,14 @@ namespace rws2016_tsimoes
                 string first_refframe = name;
                 string second_refframe = player_name;
 
-                ros::Duration(0.005).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.01).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform(first_refframe, second_refframe, ros::Time(0), st);
                 }
                 catch (tf::TransformException& ex){
                     ROS_ERROR("%s",ex.what());
-                    ros::Duration(0.50).sleep();
+                    ros::Duration(0.1).sleep();
                 }
 
                 tf::Transform t;
@@ -142,14 +142,14 @@ namespace rws2016_tsimoes
              */
             tf::Transform getPose(void)
             {
-                ros::Duration(0.001).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.1).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform("/map", name, ros::Time(0), st);
                 }
                 catch (tf::TransformException& ex){
                     ROS_ERROR("%s",ex.what());
-                    ros::Duration(0.001).sleep();
+                    ros::Duration(1.0).sleep();
                 }
 
                 tf::Transform t;
