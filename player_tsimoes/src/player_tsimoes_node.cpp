@@ -78,7 +78,7 @@ namespace rws2016_tsimoes
                 string first_refframe = name;
                 string second_refframe = p.name;
 
-                ros::Duration(0.01).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.001).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform(first_refframe, second_refframe, ros::Time(0), st);
@@ -106,7 +106,7 @@ namespace rws2016_tsimoes
                 string first_refframe = name;
                 string second_refframe = player_name;
 
-                ros::Duration(0.01).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.001).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform(first_refframe, second_refframe, ros::Time(0), st);
@@ -142,14 +142,14 @@ namespace rws2016_tsimoes
              */
             tf::Transform getPose(void)
             {
-                ros::Duration(0.1).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.01).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform("/map", name, ros::Time(0), st);
                 }
                 catch (tf::TransformException& ex){
                     ROS_ERROR("%s",ex.what());
-                    ros::Duration(1.0).sleep();
+                    ros::Duration(0.1).sleep();
                 }
 
                 tf::Transform t;
@@ -248,6 +248,19 @@ namespace rws2016_tsimoes
 
             boost::shared_ptr<ros::Subscriber> _sub;
 
+
+            ~MyPlayer()
+        {
+            tf::Transform t;
+            t.setOrigin( tf::Vector3(50, -50, 0.0) );
+            tf::Quaternion q; q.setRPY(0, 0, 0);
+            t.setRotation(q);
+            br.sendTransform(tf::StampedTransform(t, ros::Time::now(), "/map", name));
+            br.sendTransform(tf::StampedTransform(t, ros::Time::now() + ros::Duration(2), "/map", name));
+        }
+
+
+
             /**
              * @brief Constructor
              *
@@ -275,7 +288,7 @@ namespace rws2016_tsimoes
             prey_team->printTeamInfo();
 
             //Initialize position according to team
-            ros::Duration(0.5).sleep(); //sleep to make sure the time is correct
+            ros::Duration(0.3).sleep(); //sleep to make sure the time is correct
             tf::Transform t;
             srand((unsigned)time(NULL)); // To start the player in a random location
             double X=((((double)rand()/(double)RAND_MAX) ) * 2 -1) * 5 ;
