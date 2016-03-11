@@ -252,7 +252,7 @@ namespace rws2016_tsimoes
             ~MyPlayer()
         {
             tf::Transform t;
-            t.setOrigin( tf::Vector3(15, 15, 0.0) );
+            t.setOrigin( tf::Vector3(30,-30, 0.0) );
             tf::Quaternion q; q.setRPY(0, 0, 0);
             t.setRotation(q);
             br.sendTransform(tf::StampedTransform(t, ros::Time::now(), "/map", name));
