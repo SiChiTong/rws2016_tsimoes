@@ -300,7 +300,7 @@ namespace rws2016_tsimoes
 
 
             //Initialize position according to team
-            ros::Duration(0.3).sleep(); //sleep to make sure the time is correct
+            ros::Duration(0.5).sleep(); //sleep to make sure the time is correct
             tf::Transform t;
             srand((unsigned)time(NULL)); // To start the player in a random location
            // double X=((((double)rand()/(double)RAND_MAX) ) * 2 -1) * 5 ;
