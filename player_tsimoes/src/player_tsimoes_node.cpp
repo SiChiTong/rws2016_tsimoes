@@ -5,7 +5,6 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
-
 //#include <tf/transform_broadcaster.h>
 
 #include <rws2016_libs/team_info.h>
@@ -78,7 +77,7 @@ namespace rws2016_tsimoes
                 string first_refframe = name;
                 string second_refframe = p.name;
 
-                ros::Duration(0.001).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.01).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform(first_refframe, second_refframe, ros::Time(0), st);
@@ -86,6 +85,7 @@ namespace rws2016_tsimoes
                 catch (tf::TransformException& ex){
                     ROS_ERROR("%s",ex.what());
                     ros::Duration(0.1).sleep();
+                    return 999;
                 }
 
                 tf::Transform t;
@@ -106,7 +106,7 @@ namespace rws2016_tsimoes
                 string first_refframe = name;
                 string second_refframe = player_name;
 
-                ros::Duration(0.001).sleep(); //To allow the listener to hear messages
+                ros::Duration(0.01).sleep(); //To allow the listener to hear messages
                 tf::StampedTransform st; //The pose of the player
                 try{
                     listener.lookupTransform(first_refframe, second_refframe, ros::Time(0), st);
@@ -114,6 +114,7 @@ namespace rws2016_tsimoes
                 catch (tf::TransformException& ex){
                     ROS_ERROR("%s",ex.what());
                     ros::Duration(0.1).sleep();
+                    return 0;
                 }
 
                 tf::Transform t;
@@ -248,18 +249,15 @@ namespace rws2016_tsimoes
 
             boost::shared_ptr<ros::Subscriber> _sub;
 
-
             ~MyPlayer()
         {
             tf::Transform t;
-            t.setOrigin( tf::Vector3(50, -50, 0.0) );
+            t.setOrigin( tf::Vector3(15, 15, 0.0) );
             tf::Quaternion q; q.setRPY(0, 0, 0);
             t.setRotation(q);
             br.sendTransform(tf::StampedTransform(t, ros::Time::now(), "/map", name));
             br.sendTransform(tf::StampedTransform(t, ros::Time::now() + ros::Duration(2), "/map", name));
         }
-
-
 
             /**
              * @brief Constructor
@@ -288,9 +286,12 @@ namespace rws2016_tsimoes
             prey_team->printTeamInfo();
 
             //Initialize position according to team
-            ros::Duration(0.3).sleep(); //sleep to make sure the time is correct
+            ros::Duration(0.5).sleep(); //sleep to make sure the time is correct
             tf::Transform t;
-            srand((unsigned)time(NULL)); // To start the player in a random location
+            //srand((unsigned)time(NULL)); // To start the player in a random location
+            struct timeval t1;
+            gettimeofday(&t1, NULL);
+            srand(t1.tv_usec);
             double X=((((double)rand()/(double)RAND_MAX) ) * 2 -1) * 5 ;
             double Y=((((double)rand()/(double)RAND_MAX) ) * 2 -1) * 5 ;
             t.setOrigin( tf::Vector3(X, Y, 0.0) );
@@ -339,7 +340,7 @@ namespace rws2016_tsimoes
                 br.sendTransform(tf::StampedTransform(t, ros::Time::now(), "/map", name));
             }
 
-            string getNameOfClosestPrey(void)
+            void getNameOfClosestPrey(string& name, double& distance)
             {
                 double prey_dist = getDistance(*prey_team->players[0]);
                 string prey_name = prey_team->players[0]->name;
@@ -355,8 +356,30 @@ namespace rws2016_tsimoes
                     }
                 }
 
-                return prey_name;
+                name = prey_name;
+                distance = prey_dist;
             }
+
+            void getNameOfClosestHunter(string& name, double& distance)
+            {
+                double hunter_dist = getDistance(*hunter_team->players[0]);
+                string hunter_name = hunter_team->players[0]->name;
+
+                for (size_t i = 1; i < hunter_team->players.size(); ++i)
+                {
+                    double d = getDistance(*hunter_team->players[i]);
+
+                    if (d < hunter_dist) //A new minimum
+                    {
+                        hunter_dist = d;
+                        hunter_name = hunter_team->players[i]->name;
+                    }
+                }
+
+                name = hunter_name;
+                distance = hunter_dist;
+            }
+
 
 
             /**
@@ -370,17 +393,31 @@ namespace rws2016_tsimoes
 
                 //I will encode a very simple hunting behaviour:
                 //
-                //1. Get closest prey name
+                //1. Get names of closest prey and hunter
                 //2. Get angle to closest prey
                 //3. Compute maximum displacement
                 //4. Move maximum displacement towards angle to prey (limited by min, max)
 
                 //Step 1
-                string closest_prey = getNameOfClosestPrey();
+                string closest_prey; double dist_closest_prey;
+                getNameOfClosestPrey(closest_prey, dist_closest_prey);
                 ROS_INFO("Closest prey is %s", closest_prey.c_str());
 
+                string closest_hunter; double dist_closest_hunter;
+                getNameOfClosestHunter(closest_hunter, dist_closest_hunter);
+                ROS_INFO("Closest hunter is %s", closest_hunter.c_str());
+
+
                 //Step 2
-                double angle = getAngle(closest_prey);
+                double angle = 0;
+                if (dist_closest_hunter <  dist_closest_prey)
+                {
+                    angle = getAngle(closest_hunter) + M_PI;
+                }
+                else
+                {
+                    angle = getAngle(closest_prey);
+                }
 
                 //Step 3
                 double displacement = msg.cat; //I am a cat, others may choose another animal
@@ -393,7 +430,7 @@ namespace rws2016_tsimoes
     };
 
 
-} //end of namespace rws2016_moliveira
+} //end of namespace rws2016_tsimoes
 
 /**
  * @brief The main function
