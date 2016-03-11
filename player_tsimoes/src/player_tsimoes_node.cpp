@@ -259,7 +259,7 @@ namespace rws2016_tsimoes
 	~MyPlayer()
         {
             tf::Transform t;
-            t.setOrigin( tf::Vector3(15, 15, 0.0) );
+            t.setOrigin( tf::Vector3(30, -30, 0.0) );
             tf::Quaternion q; q.setRPY(0, 0, 0);
             t.setRotation(q);
             br.sendTransform(tf::StampedTransform(t, ros::Time::now(), "/map", name));
@@ -300,7 +300,7 @@ namespace rws2016_tsimoes
 
 
             //Initialize position according to team
-            ros::Duration(0.5).sleep(); //sleep to make sure the time is correct
+            ros::Duration(0.3).sleep(); //sleep to make sure the time is correct
             tf::Transform t;
             srand((unsigned)time(NULL)); // To start the player in a random location
            // double X=((((double)rand()/(double)RAND_MAX) ) * 2 -1) * 5 ;
