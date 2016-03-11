@@ -420,7 +420,7 @@ namespace rws2016_tsimoes
                 }
 
                 //Step 3
-                double displacement = msg.cat; //I am a cat, others may choose another animal
+                double displacement = msg.cheetah; //I am a cat, others may choose another animal
 
                 //Step 4
                 move(displacement, angle);
